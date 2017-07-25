@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/aop
+           http://www.springframework.org/schema/aop/spring-aop.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd">
+           
+   	<alias name="compositeProductImageCopyStrategy" alias="productImageCopyStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.CompositeProductImageCopyStrategy" id="compositeProductImageCopyStrategy">
+		<property name="imageCopyStrategies">
+			<list>
+				<ref bean="defaultProductImageCopyStrategy"/>
+				<ref bean="ftpProductImageCopyStrategy"/>
+			</list>
+		</property>
+	</bean> 
+	<bean class="com.avansas.imagetools.strategy.DefaultProductImageCopyStrategy" id="defaultProductImageCopyStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.FtpProductImageCopyStrategy" id="ftpProductImageCopyStrategy"/>
+	
+	<alias name="defaultModifiedFileLookUpStrategy" alias="modifiedFileLookUpStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.DefaultModifiedFileLookUpStrategy" id="defaultModifiedFileLookUpStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.ModifiedFileLookUpStrategyWithModifiedDate" id="mdifiedFileLookUpStrategyWithModifiedDate"/>
+	
+	<alias name="compositeImageRenameStrategy" alias="imageRenameStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.CompositeImageRenameStrategy" id="compositeImageRenameStrategy">
+		<property name="imageRenameStrategies">
+			<list>
+				<ref bean="defaultImageRenameStrategy"/>
+				<ref bean="ftpImageRenameStrategy"/>
+			</list>
+		</property>
+	</bean>
+	
+	<bean class="com.avansas.imagetools.strategy.DefaultImageRenameStrategy" id="defaultImageRenameStrategy"/>
+	<bean class="com.avansas.imagetools.strategy.FtpImageRenameStrategy" id="ftpImageRenameStrategy"/>
+</beans>

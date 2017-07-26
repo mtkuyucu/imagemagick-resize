@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import com.avansas.imagetools.strategy.ImageResizeStrategy;
 import com.avansas.imagetools.strategy.ModifiedFileLookUpStrategy;
 import com.avansas.imagetools.strategy.ProductImageCopyStrategy;
 import com.avansas.imagetools.util.RuntimeData;
+import com.google.common.base.Joiner;
 
 @Component
 public class ImageResizeJob {
@@ -67,8 +69,8 @@ public class ImageResizeJob {
 		File lookupImageDir = new File(dropFolderPath);
 		List<File> latestModifications = modifiedFileDetectionStrategy
 				.findLatestModifications(lookupImageDir, Optional.ofNullable(fileExtension));
-		Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
-		if(MapUtils.isNotEmpty(nameTemplatesForModifiedImages)) {
+		if(CollectionUtils.isNotEmpty(latestModifications)) {
+			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
 			latestModifications.parallelStream().forEach(file -> 
 					createConversions(file, nameTemplatesForModifiedImages, supportedFormats));
@@ -93,7 +95,7 @@ public class ImageResizeJob {
 			Files.move(formerFilePath, newDirectoryPath, StandardCopyOption.REPLACE_EXISTING);
 			LOG.info(StringUtils.join("File: {" , file.getAbsolutePath(), "} has been moved to archivie" ));
 		} catch (IOException e) {
-			LOG.error("Failed to move file: " + file.getAbsolutePath(), e);
+			LOG.error("Failed to move file: {" + file.getAbsolutePath() + "} to archive", e);
 		}
 		
 	}
@@ -102,8 +104,17 @@ public class ImageResizeJob {
 		.map(file -> findProductCodeForFile(file))
 		.filter(Optional::isPresent).map(Optional::get)
 		.collect(Collectors.toSet());
+		return getNameTemplatesForProductCodes(productCodes);
+	}
+
+	private Map<String, String> getNameTemplatesForProductCodes(Collection<String> productCodes) {
 		if(CollectionUtils.isNotEmpty(productCodes)) {
-			return productImageInfoClient.getProductCodesWithImageNameTemplates(productCodes);
+			try {
+				return productImageInfoClient.getProductCodesWithImageNameTemplates(productCodes);
+			} catch (Exception e) {
+				LOG.warn("Unable to get name templates for product codes: {" + Joiner.on(",").join(productCodes)+ "}", e);
+				return Collections.emptyMap();
+			}
 		}
 		return Collections.emptyMap();
 	}
@@ -113,13 +124,22 @@ public class ImageResizeJob {
 		LOG.debug("Implementing formatting operation to image:{ "+ file.getAbsolutePath(), "}");
 		try {
 			String productCode = findProductCodeForFile(file).get();
-			String nameTemplate = nameTemplatesForModifiedImages.get(productCode);
-			supportedFormats.parallelStream().forEach(format -> 
-					createConversionForFormat(file, nameTemplate, productCode, format));
+			String nameTemplate = Optional.ofNullable(nameTemplatesForModifiedImages.get(productCode))
+					.orElseGet(() -> getNameTemplateForProductCode(productCode));
+			if(Objects.nonNull(nameTemplate)) {
+				supportedFormats.parallelStream().forEach(format -> 
+				createConversionForFormat(file, nameTemplate, productCode, format));
+				LOG.info("Image: {"+ file.getAbsolutePath() + "} has been formatted");
+			} else {
+				LOG.error("Name template for product: {" + productCode +"} is empty and it won't be formatted");
+			}
 		} catch (Exception e) {
-			LOG.error("Failed to convert image " + file.getAbsolutePath());
+			LOG.error("Failed to convert image " + file.getAbsolutePath(), e);
 		}
-		LOG.info("Image: {"+ file.getAbsolutePath() + "} has been formatted");
+	}
+
+	private String getNameTemplateForProductCode(String productCode) {
+		return getNameTemplatesForProductCodes(Collections.singleton(productCode)).get(productCode);
 	}
 
 	private File createDirectoryIfRequired(String path) {

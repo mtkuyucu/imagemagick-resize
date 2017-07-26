@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.avansas</groupId>
   <artifactId>imagetools</artifactId>
-  <version>1.0b</version>
+  <version>1.0b_build_${buildNumber}</version>
   <name>imagetools</name>
   <packaging>jar</packaging>
   

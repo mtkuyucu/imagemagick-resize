@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-
-	<appender name="FILE-AUDIT"
+	<appender name="FA"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>logs/application.log</file>
 		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -12,14 +11,12 @@
 
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- rollover daily -->
-			<fileNamePattern>logs/applicaiton.%d{yyyy-MM-dd}.%i.log
-                        </fileNamePattern>
+			<fileNamePattern>logs/applicaiton.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
 			<timeBasedFileNamingAndTriggeringPolicy
 				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
 				<maxFileSize>10MB</maxFileSize>
 			</timeBasedFileNamingAndTriggeringPolicy>
 		</rollingPolicy>
-
 	</appender>
 	
 	 <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
@@ -28,13 +25,13 @@
          </encoder>
      </appender>
 
-	<logger name="com.avansas" level="info"
-		additivity="false">
-		<appender-ref ref="FILE-AUDIT" />
+	<logger name="com.avansas" level="info" additivity="false">
+		<appender-ref ref="FA" />
+		<appender-ref ref="STDOUT" />
 	</logger>
 
 	<root level="info">
-		<appender-ref ref="FILE-AUDIT" />
+		<appender-ref ref="FA" />
 		<appender-ref ref="STDOUT" />
 	</root>
 

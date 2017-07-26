@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -44,8 +45,6 @@ public class ImageResizeJob {
 	private ModifiedFileLookUpStrategy modifiedFileDetectionStrategy;
 	@Autowired
 	private ProductImageInfoClient productImageInfoClient;
-	@Autowired
-	@Qualifier("productImageCopyStrategy")
 	private ProductImageCopyStrategy productImageCopyStrategy; 
 	
 	@Value("${drop.foler.path}")
@@ -159,6 +158,14 @@ public class ImageResizeJob {
 		}
 		
 		return Optional.of(imageDir.getName());
+	}
+
+	public ProductImageCopyStrategy getProductImageCopyStrategy() {
+		return productImageCopyStrategy;
+	}
+	@Required
+	public void setProductImageCopyStrategy(ProductImageCopyStrategy productImageCopyStrategy) {
+		this.productImageCopyStrategy = productImageCopyStrategy;
 	}
    
 }

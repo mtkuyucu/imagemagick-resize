@@ -41,4 +41,12 @@
 	
 	<bean class="com.avansas.imagetools.strategy.DefaultImageRenameStrategy" id="defaultImageRenameStrategy"/>
 	<bean class="com.avansas.imagetools.strategy.FtpImageRenameStrategy" id="ftpImageRenameStrategy"/>
+	
+	<bean class="com.avansas.imagetools.job.ImageResizeJob" id="imageResizeJob">
+		<property name="productImageCopyStrategy" ref="${imageResizeJob.productImageCopyStrategy}"/>
+	</bean>
+	
+	<bean class="com.avansas.imagetools.controller.ImageNameController" id="imageNameController">
+		<property name="imageRenameStrategy" ref="${imageNameController.imageRenameStrategy}"/>
+	</bean>
 </beans>

@@ -2,8 +2,7 @@ package com.avansas.imagetools.controller;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,8 +15,6 @@ import com.avansas.imagetools.strategy.ImageRenameStrategy;
 @RestController
 public class ImageNameController {
 	
-	@Autowired
-	@Qualifier("imageRenameStrategy")
 	private ImageRenameStrategy imageRenameStrategy;
 
 	@RequestMapping(path = "product/{productCode:.*}/image/name"
@@ -26,5 +23,13 @@ public class ImageNameController {
 		String pattern = (String) parameters.get("template");
 		new Thread(() -> imageRenameStrategy.renameAll(productCode, pattern)).start();
 		return true;
+	}
+
+	public ImageRenameStrategy getImageRenameStrategy() {
+		return imageRenameStrategy;
+	}
+	@Required
+	public void setImageRenameStrategy(ImageRenameStrategy imageRenameStrategy) {
+		this.imageRenameStrategy = imageRenameStrategy;
 	}
 }

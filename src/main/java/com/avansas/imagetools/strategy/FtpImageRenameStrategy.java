@@ -1,8 +1,5 @@
 package com.avansas.imagetools.strategy;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -86,6 +83,7 @@ public class FtpImageRenameStrategy extends DefaultImageRenameStrategy implement
 
 	private List<LsEntry> getFilesToRename(ChannelSftp channelSftp, String productCode, String matchString)
 			throws SftpException {
+		@SuppressWarnings("unchecked")
 		Vector<LsEntry> files = channelSftp.ls(".");
 		List<LsEntry> filesToRename = files.parallelStream()
 				.filter(file -> file.getFilename().matches(matchString)).collect(Collectors.toList());

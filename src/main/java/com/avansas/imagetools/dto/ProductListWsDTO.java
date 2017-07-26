@@ -4,6 +4,7 @@ import java.util.List;
 
 public class ProductListWsDTO implements java.io.Serializable {
 
+	private static final long serialVersionUID = 3185039342964753097L;
 	private List<ProductWsDTO> products;
 
 	public ProductListWsDTO() {

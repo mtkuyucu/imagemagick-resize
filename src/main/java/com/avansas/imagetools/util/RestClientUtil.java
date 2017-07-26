@@ -1,12 +1,8 @@
 package com.avansas.imagetools.util;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -56,12 +52,13 @@ public final class RestClientUtil {
 		return true;
 	}
 	
+	@SuppressWarnings("deprecation")
 	private static Client createSSLClient(){
 		final ClientConfig config = new DefaultClientConfig();
         config.getProperties()
                 .put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES,
                         new HTTPSProperties(
-                                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER,
+                        		SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER,
                                 SSLUtil.getInsecureSSLContext()));
 		return Client.create(config);
 	}

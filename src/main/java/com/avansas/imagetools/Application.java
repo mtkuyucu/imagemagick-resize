@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource("classpath:/parameters.properties")
 @ImportResource("classpath:/spring.xml")
 public class Application {
+	@SuppressWarnings(value = { "unused" })
 	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

@@ -2,6 +2,8 @@ package com.avansas.imagetools.dto;
 
 public class ProductWsDTO implements java.io.Serializable {
 
+	private static final long serialVersionUID = -4837417267608889661L;
+
 	private String code;
 
 	private String url;

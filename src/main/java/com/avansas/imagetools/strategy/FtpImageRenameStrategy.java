@@ -30,6 +30,8 @@ public class FtpImageRenameStrategy extends DefaultImageRenameStrategy implement
 	private String ftpHost;
 	@Value("${product.image.ftp.port}")
 	private int ftpPort;
+	@Value("${product.image.ftp.channel.type}")
+	private String ftpChannel;
 	@Value("${product.image.ftp.path}")
 	private String ftpPath;
 	
@@ -47,7 +49,7 @@ public class FtpImageRenameStrategy extends DefaultImageRenameStrategy implement
             config.put("StrictHostKeyChecking", "no");
             session.setConfig(config);
             session.connect();
-            channel = session.openChannel(CHANNEL_TYPE);
+            channel = session.openChannel(ftpChannel);
             channel.connect();
             channelSftp = (ChannelSftp) channel;
             channelSftp.cd(ftpPath);

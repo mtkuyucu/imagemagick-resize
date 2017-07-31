@@ -44,6 +44,16 @@
 	
 	<bean class="com.avansas.imagetools.job.ImageResizeJob" id="imageResizeJob">
 		<property name="productImageCopyStrategy" ref="${imageResizeJob.productImageCopyStrategy}"/>
+		<property name="imageTypeMap">
+			<map key-type="java.lang.String" value-type="java.lang.String">
+				<entry key="900Wx900H" value="zoom" />
+				<entry key="580Wx580H" value="mobileretina" />
+				<entry key="300Wx300H" value="product" />
+				<entry key="260Wx260H" value="mobilestandart" />
+				<entry key="150Wx150H" value="list" />
+				<entry key="50Wx50H" value="thumbnail" />
+			</map>
+		</property>
 	</bean>
 	
 	<bean class="com.avansas.imagetools.controller.ImageNameController" id="imageNameController">

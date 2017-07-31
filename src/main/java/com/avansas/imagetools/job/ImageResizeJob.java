@@ -46,7 +46,8 @@ public class ImageResizeJob {
 	private ModifiedFileLookUpStrategy modifiedFileDetectionStrategy;
 	@Autowired
 	private ProductImageInfoClient productImageInfoClient;
-	private ProductImageCopyStrategy productImageCopyStrategy; 
+	private ProductImageCopyStrategy productImageCopyStrategy;
+	private Map<String,String> imageTypeMap;
 	
 	@Value("${drop.foler.path}")
 	private String dropFolderPath;
@@ -126,7 +127,7 @@ public class ImageResizeJob {
 			String nameTemplate = Optional.ofNullable(nameTemplatesForModifiedImages.get(productCode))
 					.orElseGet(() -> getNameTemplateForProductCode(productCode));
 			if(Objects.nonNull(nameTemplate)) {
-				supportedFormats.parallelStream().forEach(format -> 
+				supportedFormats.parallelStream().forEach(format ->
 				createConversionForFormat(file, nameTemplate, productCode, format));
 				LOG.info("Image: {"+ file.getAbsolutePath() + "} has been formatted");
 			} else {
@@ -152,7 +153,7 @@ public class ImageResizeJob {
 	private void createConversionForFormat(File file, String nameTemplate, String productCode, ConversionMediaFormatWsDTO format) {
 		try {
 			String index = file.getName().replaceAll("([0-9]+)\\." + fileExtension, "$1");
-			String imageType = format.getQualifier();
+			String imageType = getImageTypeMap().get(format.getQualifier());
 			String outputFileName = StringUtils.replaceEach(nameTemplate, new String[]{indexPlaceHolder, imageTypePlaceHolder}
 					, new String []{index, imageType});
 			createDirectoryIfRequired(tempImagePath);
@@ -186,5 +187,12 @@ public class ImageResizeJob {
 	public void setProductImageCopyStrategy(ProductImageCopyStrategy productImageCopyStrategy) {
 		this.productImageCopyStrategy = productImageCopyStrategy;
 	}
-   
+
+	public Map<String, String> getImageTypeMap() {
+		return imageTypeMap;
+	}
+
+	public void setImageTypeMap(Map<String, String> imageTypeMap) {
+		this.imageTypeMap = imageTypeMap;
+	}
 }

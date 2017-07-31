@@ -1,6 +1,7 @@
 package com.avansas.imagetools.strategy;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Required;
@@ -10,7 +11,13 @@ public class CompositeProductImageCopyStrategy implements ProductImageCopyStrate
 	List<ProductImageCopyStrategy> imageCopyStrategies;
 	@Override
 	public void copy(File file, String productCode) {
-		imageCopyStrategies.forEach(strategy -> strategy.copy(file, productCode));
+		imageCopyStrategies.forEach(strategy -> {
+			try {
+				strategy.copy(file, productCode);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 		
 	}
 	public List<ProductImageCopyStrategy> getImageCopyStrategies() {

@@ -2,7 +2,10 @@ package com.avansas.imagetools.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +19,9 @@ import com.avansas.imagetools.strategy.ImageRenameStrategy;
 public class ImageNameController {
 	
 	private ImageRenameStrategy imageRenameStrategy;
+
+	@Autowired
+	private CacheManager cacheManager;
 
 	@RequestMapping(path = "product/{productCode:.*}/image/name"
 			, method = {RequestMethod.PUT, RequestMethod.PATCH}, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -31,5 +37,15 @@ public class ImageNameController {
 	@Required
 	public void setImageRenameStrategy(ImageRenameStrategy imageRenameStrategy) {
 		this.imageRenameStrategy = imageRenameStrategy;
+	}
+
+	@RequestMapping(path = "clear-cache"
+			, method = {RequestMethod.POST}, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public boolean clearCache() {
+		cacheManager.getCacheNames()
+				.stream()
+				.map(cacheManager::getCache)
+				.forEach(Cache::clear);
+		return true;
 	}
 }

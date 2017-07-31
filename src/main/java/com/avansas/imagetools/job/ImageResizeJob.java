@@ -46,8 +46,9 @@ public class ImageResizeJob {
 	private ModifiedFileLookUpStrategy modifiedFileDetectionStrategy;
 	@Autowired
 	private ProductImageInfoClient productImageInfoClient;
-	private ProductImageCopyStrategy productImageCopyStrategy; 
-	
+	private ProductImageCopyStrategy productImageCopyStrategy;
+	private Map<String,String> imageTypeMap;
+
 	@Value("${drop.foler.path}")
 	private String dropFolderPath;
 	@Value("${product.image.folder.path}")
@@ -62,7 +63,7 @@ public class ImageResizeJob {
 	private String indexPlaceHolder;
 	@Value("${archive.directory.name}")
 	private String archiveDirName;
-	
+
 	public synchronized void perform() {
 		Date lastLookUpDate = new Date();
 		File lookupImageDir = new File(dropFolderPath);
@@ -71,7 +72,7 @@ public class ImageResizeJob {
 		if(CollectionUtils.isNotEmpty(latestModifications)) {
 			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
-			latestModifications.parallelStream().forEach(file -> 
+			latestModifications.parallelStream().forEach(file ->
 					createConversions(file, nameTemplatesForModifiedImages, supportedFormats));
 			latestModifications.parallelStream().forEach(this::moveFileToArchive);
 		}
@@ -80,9 +81,9 @@ public class ImageResizeJob {
 
 	private List<ConversionMediaFormatWsDTO> getSupportedFormats() {
 		return productImageInfoClient.getImageConversionInfo().getConversionGroups().parallelStream()
-		.map(ConversionGroupWsDTO::getSupportedFormats)
-		.flatMap(Collection::stream)
-		.collect(Collectors.toList());
+				.map(ConversionGroupWsDTO::getSupportedFormats)
+				.flatMap(Collection::stream)
+				.collect(Collectors.toList());
 	}
 
 	private void moveFileToArchive(File file) {
@@ -96,13 +97,13 @@ public class ImageResizeJob {
 		} catch (IOException e) {
 			LOG.error("Failed to move file: {" + file.getAbsolutePath() + "} to archive", e);
 		}
-		
+
 	}
 	private Map<String, String> getNameTemplatesForModifiedImages(List<File> latestModifications) {
 		Set<String> productCodes = latestModifications.parallelStream()
-		.map(file -> findProductCodeForFile(file))
-		.filter(Optional::isPresent).map(Optional::get)
-		.collect(Collectors.toSet());
+				.map(file -> findProductCodeForFile(file))
+				.filter(Optional::isPresent).map(Optional::get)
+				.collect(Collectors.toSet());
 		return getNameTemplatesForProductCodes(productCodes);
 	}
 
@@ -117,7 +118,7 @@ public class ImageResizeJob {
 		}
 		return Collections.emptyMap();
 	}
-	
+
 	private void createConversions(File file, Map<String, String> nameTemplatesForModifiedImages
 			, List<ConversionMediaFormatWsDTO> supportedFormats) {
 		LOG.debug("Implementing formatting operation to image:{ "+ file.getAbsolutePath(), "}");
@@ -126,8 +127,8 @@ public class ImageResizeJob {
 			String nameTemplate = Optional.ofNullable(nameTemplatesForModifiedImages.get(productCode))
 					.orElseGet(() -> getNameTemplateForProductCode(productCode));
 			if(Objects.nonNull(nameTemplate)) {
-				supportedFormats.parallelStream().forEach(format -> 
-				createConversionForFormat(file, nameTemplate, productCode, format));
+				supportedFormats.parallelStream().forEach(format ->
+						createConversionForFormat(file, nameTemplate, productCode, format));
 				LOG.info("Image: {"+ file.getAbsolutePath() + "} has been formatted");
 			} else {
 				LOG.error("Name template for product: {" + productCode +"} is empty and it won't be formatted");
@@ -152,7 +153,7 @@ public class ImageResizeJob {
 	private void createConversionForFormat(File file, String nameTemplate, String productCode, ConversionMediaFormatWsDTO format) {
 		try {
 			String index = file.getName().replaceAll("([0-9]+)\\." + fileExtension, "$1");
-			String imageType = format.getQualifier();
+			String imageType = getImageTypeMap().get(format.getQualifier());
 			String outputFileName = StringUtils.replaceEach(nameTemplate, new String[]{indexPlaceHolder, imageTypePlaceHolder}
 					, new String []{index, imageType});
 			createDirectoryIfRequired(tempImagePath);
@@ -161,13 +162,13 @@ public class ImageResizeJob {
 			if (success) {
 				File outputFile = new File(outputFilePath);
 				productImageCopyStrategy.copy(outputFile, productCode);
-				Files.deleteIfExists(Paths.get(outputFile.getAbsolutePath()));
+				//Files.deleteIfExists(Paths.get(outputFile.getAbsolutePath()));
 			}
 		} catch (Exception e) {
 			LOG.error("Failed to format image: {" + file.getAbsolutePath() + "} for image type: {" + format.getQualifier() + "}", e);
 		}
 	}
-	
+
 	private Optional<String> findProductCodeForFile(File file) {
 		File imageDir = file.getParentFile();
 		File lookupDir = new File(dropFolderPath);
@@ -175,7 +176,7 @@ public class ImageResizeJob {
 			LOG.warn(StringUtils.join("Directory " , imageDir.getAbsoluteFile(), " is not a product image directory"));
 			return Optional.empty();
 		}
-		
+
 		return Optional.of(imageDir.getName());
 	}
 
@@ -186,5 +187,12 @@ public class ImageResizeJob {
 	public void setProductImageCopyStrategy(ProductImageCopyStrategy productImageCopyStrategy) {
 		this.productImageCopyStrategy = productImageCopyStrategy;
 	}
-   
+
+	public Map<String, String> getImageTypeMap() {
+		return imageTypeMap;
+	}
+
+	public void setImageTypeMap(Map<String, String> imageTypeMap) {
+		this.imageTypeMap = imageTypeMap;
+	}
 }

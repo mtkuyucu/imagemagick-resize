@@ -43,9 +43,11 @@ public final class RestClientUtil {
 		return responseObject;
 	}
 
-	public static boolean postRestRequest(String requestUrl) {
+	public static boolean putRestRequest(String requestUrl, String productCode, int imageCount) {
 		WebResource resource = CLIENT_INIT.getInstance().resource(requestUrl);
-		ClientResponse response = resource.accept("application/json").post(ClientResponse.class);
+		String body = "{\"productCode\":\""+productCode+"\",\"cdnImageCount\":"+imageCount+"}";
+		ClientResponse response = resource.type("application/json")
+				.accept("application/json").put(ClientResponse.class,body);
 		if (response.getStatus() != 200) {
 		   return false;
 		}

@@ -1,6 +1,7 @@
 package com.avansas.imagetools.job;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.avansas.imagetools.util.FileNameFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -72,11 +74,19 @@ public class ImageResizeJob {
 		if(CollectionUtils.isNotEmpty(latestModifications)) {
 			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
+			Optional<String> productCode = findProductCodeForFile(latestModifications.get(0));
+			String archiveDirectoryPath = latestModifications.get(0).getParentFile().getAbsolutePath() + File.separator + archiveDirName;
 			latestModifications.parallelStream().forEach(file ->
 					createConversions(file, nameTemplatesForModifiedImages, supportedFormats));
 			latestModifications.parallelStream().forEach(this::moveFileToArchive);
+			productCode.ifPresent(code -> updateProductCDNImageCount(code,getArchivedProductImageCount(archiveDirectoryPath)));
 		}
 		RuntimeData.saveLastLookUpDate(lastLookUpDate);
+	}
+
+	private void updateProductCDNImageCount(String productCode, int imageCount) {
+
+		productImageInfoClient.updateProductImageCount(productCode,imageCount);
 	}
 
 	private List<ConversionMediaFormatWsDTO> getSupportedFormats() {
@@ -99,7 +109,13 @@ public class ImageResizeJob {
 		}
 
 	}
-	private Map<String, String> getNameTemplatesForModifiedImages(List<File> latestModifications) {
+
+	private int getArchivedProductImageCount(String path) {
+		File archiveDir = new File(path);
+		return archiveDir.listFiles((dir, filename) -> filename.endsWith(".jpeg") || filename.endsWith(".jpg")).length;
+	}
+
+		private Map<String, String> getNameTemplatesForModifiedImages(List<File> latestModifications) {
 		Set<String> productCodes = latestModifications.parallelStream()
 				.map(file -> findProductCodeForFile(file))
 				.filter(Optional::isPresent).map(Optional::get)

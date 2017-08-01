@@ -19,6 +19,8 @@ public class ProductImageInfoClient {
 	
 	@Value("${webservice.image.get.conversion.info.url}")
 	private String conversionInfoUrl;
+	@Value("${webservice.image.update.image.count.url}")
+	private String updateProductImageCountUrl;
 	@Value("${webservice.image.get.product.image.name.template}")
 	private String productImageNameTemplatesUrl;
 	
@@ -35,4 +37,7 @@ public class ProductImageInfoClient {
 		return productCodeWithNameTemplateMap;
 	}
 
+	public void updateProductImageCount(String productCode, int imageCount) {
+		RestClientUtil.putRestRequest(updateProductImageCountUrl,productCode,imageCount);
+	}
 }

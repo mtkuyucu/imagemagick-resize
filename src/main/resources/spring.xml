@@ -59,4 +59,7 @@
 	<bean class="com.avansas.imagetools.controller.ImageNameController" id="imageNameController">
 		<property name="imageRenameStrategy" ref="${imageNameController.imageRenameStrategy}"/>
 	</bean>
+	
+	<bean class="com.google.common.eventbus.EventBus" id="eventBus"/>
+	
 </beans>

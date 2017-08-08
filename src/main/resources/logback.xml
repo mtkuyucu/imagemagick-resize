@@ -19,6 +19,44 @@
 		</rollingPolicy>
 	</appender>
 	
+	<appender name="FTP_FAIL"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/ftp-fail.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} %m%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>logs/ftp-fail.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
+	
+	<appender name="RESIZE_FAIL"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>logs/resize-fail.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} %m%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>logs/resize-fail.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
+	
 	 <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
          <encoder>
              <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n</pattern>
@@ -28,6 +66,14 @@
 	<logger name="com.avansas" level="info" additivity="false">
 		<appender-ref ref="FA" />
 		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="com.avansas.imagetools.event.listener.LoggingFtpFailListener" level="info" additivity="false">
+		<appender-ref ref="FTP_FAIL" />
+	</logger>
+
+	<logger name="com.avansas.imagetools.event.listener.LoggingResizeFailListener" level="info" additivity="false">
+		<appender-ref ref="RESIZE_FAIL" />
 	</logger>
 
 	<root level="info">

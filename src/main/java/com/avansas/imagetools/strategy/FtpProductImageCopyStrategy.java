@@ -45,13 +45,17 @@ public class FtpProductImageCopyStrategy implements ProductImageCopyStrategy {
                 if (!ftpClient.setFileType(FTP.BINARY_FILE_TYPE)) {
                     throw new IOException("Ftp Client could not set filetype(binary file type)!!!");
                 }
-                ftpClient.changeWorkingDirectory(ftpPath + "/");
-                final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
-                System.out.println("File");
-                final boolean success = ftpClient.storeFile(fileName, in);
-                ftpClient.logout();
-                if (success) {
-                    LOG.debug("File {" + fileName + "} Upload successfully %s");
+                if (ftpClient.makeDirectory("/" + productCode)) {
+                    ftpClient.changeWorkingDirectory(ftpPath + "/" + productCode);
+                    final BufferedInputStream in = new BufferedInputStream(new FileInputStream(file));
+                    System.out.println("File");
+                    final boolean success = ftpClient.storeFile(fileName, in);
+                    ftpClient.logout();
+                    if (success) {
+                        LOG.debug("File {" + fileName + "} Upload successfully %s");
+                    }
+                } else {
+                    LOG.error("Cannot create  product folder for {" + productCode + "}");
                 }
             } catch (Exception e) {
                 LOG.error("Error while uploading {" + file.getName() + "}", e);

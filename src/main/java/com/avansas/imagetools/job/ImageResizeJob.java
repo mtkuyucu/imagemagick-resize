@@ -7,14 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.avansas.imagetools.util.FileNameFilter;
@@ -72,7 +65,8 @@ public class ImageResizeJob {
 		List<File> latestModifications = modifiedFileDetectionStrategy
 				.findLatestModifications(lookupImageDir, Optional.ofNullable(fileExtension));
 		if(CollectionUtils.isNotEmpty(latestModifications)) {
-			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
+			Map<String, String> nameTemplatesForModifiedImages = new HashMap<>();
+//			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
 			Optional<String> productCode = findProductCodeForFile(latestModifications.get(0));
 			String archiveDirectoryPath = latestModifications.get(0).getParentFile().getAbsolutePath() + File.separator + archiveDirName;

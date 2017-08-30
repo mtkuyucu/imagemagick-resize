@@ -67,10 +67,7 @@ public class ImageResizeJob {
 		List<File> latestModifications = modifiedFileDetectionStrategy
 				.findLatestModifications(lookupImageDir, Optional.ofNullable(fileExtension));
 		if(CollectionUtils.isNotEmpty(latestModifications)) {
-			//Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			Map<String, String> nameTemplatesForModifiedImages = new HashMap<>();
-			Map<String, String> nameTemplatesForModifiedImages = new HashMap<>();
-//			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
 			latestModifications.stream().forEach(file ->
 					createConversions(file, nameTemplatesForModifiedImages, supportedFormats));

@@ -1,10 +1,13 @@
 package com.avansas.imagetools.strategy;
 
+import com.avansas.imagetools.event.FtpFailEvent;
+import com.google.common.eventbus.EventBus;
 import com.jcraft.jsch.*;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.BufferedInputStream;
@@ -17,6 +20,9 @@ import java.util.Properties;
 public class FtpProductImageCopyStrategy implements ProductImageCopyStrategy {
     private static final Logger LOG = LoggerFactory.getLogger(FtpProductImageCopyStrategy.class);
     private static final String CHANNEL_TYPE = "sftp";
+    
+    @Autowired
+    private EventBus eventBus;
 
     @Value("${product.image.ftp.user}")
     private String ftpUser;
@@ -59,6 +65,7 @@ public class FtpProductImageCopyStrategy implements ProductImageCopyStrategy {
                 }
             } catch (Exception e) {
                 LOG.error("Error while uploading {" + file.getName() + "}", e);
+                eventBus.post(new FtpFailEvent(file));
             } finally {
                 ftpClient.disconnect();
             }
@@ -86,6 +93,7 @@ public class FtpProductImageCopyStrategy implements ProductImageCopyStrategy {
                 LOG.debug("File: {" + file.getName() + "} has been uploaded to ftp server");
             } catch (Exception ex) {
                 LOG.error("Failed to upload file: {" + file.getName() + "} to ftp server", ex);
+                eventBus.post(new FtpFailEvent(file));
             } finally {
                 if (Objects.nonNull(channelSftp)) channelSftp.exit();
                 if (Objects.nonNull(channel)) channel.disconnect();

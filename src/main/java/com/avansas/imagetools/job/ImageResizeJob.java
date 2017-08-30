@@ -58,22 +58,27 @@ public class ImageResizeJob {
 	private String indexPlaceHolder;
 	@Value("${archive.directory.name}")
 	private String archiveDirName;
+	private static Map<String,Integer> archivedImageCountEachProduct;
 
 	public synchronized void perform() {
+		archivedImageCountEachProduct = new HashMap<>();
 		Date lastLookUpDate = new Date();
 		File lookupImageDir = new File(dropFolderPath);
 		List<File> latestModifications = modifiedFileDetectionStrategy
 				.findLatestModifications(lookupImageDir, Optional.ofNullable(fileExtension));
 		if(CollectionUtils.isNotEmpty(latestModifications)) {
+			//Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
+			Map<String, String> nameTemplatesForModifiedImages = new HashMap<>();
 			Map<String, String> nameTemplatesForModifiedImages = new HashMap<>();
 //			Map<String, String> nameTemplatesForModifiedImages = getNameTemplatesForModifiedImages(latestModifications);
 			List<ConversionMediaFormatWsDTO> supportedFormats = getSupportedFormats();
-			Optional<String> productCode = findProductCodeForFile(latestModifications.get(0));
-			String archiveDirectoryPath = latestModifications.get(0).getParentFile().getAbsolutePath() + File.separator + archiveDirName;
-			latestModifications.parallelStream().forEach(file ->
+			latestModifications.stream().forEach(file ->
 					createConversions(file, nameTemplatesForModifiedImages, supportedFormats));
-			latestModifications.parallelStream().forEach(this::moveFileToArchive);
-			productCode.ifPresent(code -> updateProductCDNImageCount(code,getArchivedProductImageCount(archiveDirectoryPath)));
+			latestModifications.stream().forEach(this::moveFileToArchive);
+			archivedImageCountEachProduct.forEach((key,value) -> {
+				LOG.info("Update CDN Image -> Product:{"+key+"} count:{"+value+"}");
+				updateProductCDNImageCount(key,value);
+			});
 		}
 		RuntimeData.saveLastLookUpDate(lastLookUpDate);
 	}
@@ -106,7 +111,9 @@ public class ImageResizeJob {
 
 	private int getArchivedProductImageCount(String path) {
 		File archiveDir = new File(path);
-		return archiveDir.listFiles((dir, filename) -> filename.endsWith(".jpeg") || filename.endsWith(".jpg")).length;
+		int length = archiveDir.listFiles((dir, filename) -> filename.endsWith(".jpeg") || filename.endsWith(".jpg")).length;
+		LOG.info("FOUND File Count { " +path+ " } : " + length);
+		return length;
 	}
 
 		private Map<String, String> getNameTemplatesForModifiedImages(List<File> latestModifications) {
@@ -139,6 +146,8 @@ public class ImageResizeJob {
 			if(Objects.nonNull(nameTemplate)) {
 				supportedFormats.parallelStream().forEach(format ->
 						createConversionForFormat(file, nameTemplate, productCode, format));
+				archivedImageCountEachProduct.putIfAbsent(productCode,0);
+				archivedImageCountEachProduct.computeIfPresent(productCode,(p,c)-> c + 1);
 				LOG.info("Image: {"+ file.getAbsolutePath() + "} has been formatted");
 			} else {
 				LOG.error("Name template for product: {" + productCode +"} is empty and it won't be formatted");

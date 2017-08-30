@@ -12,11 +12,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.avansas.imagetools.dto.ConversionMediaFormatWsDTO;
+import com.avansas.imagetools.event.ResizeFailEvent;
 import com.google.common.base.Joiner;
+import com.google.common.eventbus.EventBus;
 
 @Component
 public class DefaultImageResizeStrategy implements ImageResizeStrategy {
 	private static final Logger LOG = LoggerFactory.getLogger(DefaultImageResizeStrategy.class);
+	@Autowired
+	private EventBus eventBus;
+	
 	@Autowired
 	private Environment env;
 	
@@ -31,6 +36,11 @@ public class DefaultImageResizeStrategy implements ImageResizeStrategy {
 		} catch (Exception e) {
 			LOG.error(StringUtils.join("Failed to implement command ",conversion , " for  image: {", inputFile, "}"), e );
 		}
+		
+		if(!success) {
+			eventBus.post(new ResizeFailEvent(inputFile, outputFile));
+		}
+		
 		return success;
 	}
 

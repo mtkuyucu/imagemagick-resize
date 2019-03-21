@@ -14,7 +14,7 @@
            http://www.springframework.org/schema/context/spring-context.xsd">
            
    	<alias name="compositeProductImageCopyStrategy" alias="productImageCopyStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.CompositeProductImageCopyStrategy" id="compositeProductImageCopyStrategy">
+	<bean class="com.renova.imagetools.strategy.CompositeProductImageCopyStrategy" id="compositeProductImageCopyStrategy">
 		<property name="imageCopyStrategies">
 			<list>
 				<ref bean="defaultProductImageCopyStrategy"/>
@@ -22,15 +22,15 @@
 			</list>
 		</property>
 	</bean> 
-	<bean class="com.avansas.imagetools.strategy.DefaultProductImageCopyStrategy" id="defaultProductImageCopyStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.FtpProductImageCopyStrategy" id="ftpProductImageCopyStrategy"/>
+	<bean class="com.renova.imagetools.strategy.DefaultProductImageCopyStrategy" id="defaultProductImageCopyStrategy"/>
+	<bean class="com.renova.imagetools.strategy.FtpProductImageCopyStrategy" id="ftpProductImageCopyStrategy"/>
 	
 	<alias name="defaultModifiedFileLookUpStrategy" alias="modifiedFileLookUpStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.DefaultModifiedFileLookUpStrategy" id="defaultModifiedFileLookUpStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.ModifiedFileLookUpStrategyWithModifiedDate" id="mdifiedFileLookUpStrategyWithModifiedDate"/>
+	<bean class="com.renova.imagetools.strategy.DefaultModifiedFileLookUpStrategy" id="defaultModifiedFileLookUpStrategy"/>
+	<bean class="com.renova.imagetools.strategy.ModifiedFileLookUpStrategyWithModifiedDate" id="modifiedFileLookUpStrategyWithModifiedDate"/>
 	
 	<alias name="compositeImageRenameStrategy" alias="imageRenameStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.CompositeImageRenameStrategy" id="compositeImageRenameStrategy">
+	<bean class="com.renova.imagetools.strategy.CompositeImageRenameStrategy" id="compositeImageRenameStrategy">
 		<property name="imageRenameStrategies">
 			<list>
 				<ref bean="defaultImageRenameStrategy"/>
@@ -39,10 +39,10 @@
 		</property>
 	</bean>
 	
-	<bean class="com.avansas.imagetools.strategy.DefaultImageRenameStrategy" id="defaultImageRenameStrategy"/>
-	<bean class="com.avansas.imagetools.strategy.FtpImageRenameStrategy" id="ftpImageRenameStrategy"/>
+	<bean class="com.renova.imagetools.strategy.DefaultImageRenameStrategy" id="defaultImageRenameStrategy"/>
+	<bean class="com.renova.imagetools.strategy.FtpImageRenameStrategy" id="ftpImageRenameStrategy"/>
 	
-	<bean class="com.avansas.imagetools.job.ImageResizeJob" id="imageResizeJob">
+	<bean class="com.renova.imagetools.job.ImageResizeJob" id="imageResizeJob">
 		<property name="productImageCopyStrategy" ref="${imageResizeJob.productImageCopyStrategy}"/>
 		<property name="imageTypeMap">
 			<map key-type="java.lang.String" value-type="java.lang.String">
@@ -56,7 +56,7 @@
 		</property>
 	</bean>
 	
-	<bean class="com.avansas.imagetools.controller.ImageNameController" id="imageNameController">
+	<bean class="com.renova.imagetools.controller.ImageNameController" id="imageNameController">
 		<property name="imageRenameStrategy" ref="${imageNameController.imageRenameStrategy}"/>
 	</bean>
 	

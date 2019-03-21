@@ -63,16 +63,16 @@
          </encoder>
      </appender>
 
-	<logger name="com.avansas" level="info" additivity="false">
+	<logger name="com.renova" level="info" additivity="false">
 		<appender-ref ref="FA" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
-	<logger name="com.avansas.imagetools.event.listener.LoggingFtpFailListener" level="info" additivity="false">
+	<logger name="com.renova.imagetools.event.listener.LoggingFtpFailListener" level="info" additivity="false">
 		<appender-ref ref="FTP_FAIL" />
 	</logger>
 
-	<logger name="com.avansas.imagetools.event.listener.LoggingResizeFailListener" level="info" additivity="false">
+	<logger name="com.renova.imagetools.event.listener.LoggingResizeFailListener" level="info" additivity="false">
 		<appender-ref ref="RESIZE_FAIL" />
 	</logger>
 
